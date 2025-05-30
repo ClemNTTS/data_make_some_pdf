@@ -1,24 +1,11 @@
 from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from app.internal.struct import JSONData, Element
+from app.internal import inputs
 import io
-
-
-class Element(BaseModel):
-    element_type: str
-    content: str
-    x: float
-    y: float
-    width: float
-    height: float
-
-
-class JSONData(BaseModel):
-    file_name: str
-    font: str
-    font_size: int
-    content: list[Element]
+import base64
 
 
 def create_pdf_template(json_data: JSONData):
@@ -41,6 +28,14 @@ def add_elements_to_canvas(c: canvas.Canvas, elements: list[Element]) -> canvas.
         if element.element_type == "text":
             c.drawString(element.x, element.y, element.content)
         elif element.element_type == "image":
-            c.drawImage(element.content, element.x, element.y,
+            image_data = base64.b64decode(element.content)
+            image_data = ImageReader(io.BytesIO(image_data))
+            c.drawImage(image_data, element.x, element.y,
                         width=element.width, height=element.height)
+        elif element.element_type == "input":
+            try:
+                c = inputs.handle_input_element(c, element)
+            except Exception as e:
+                raise ValueError(f"Error handling input element: {e}")
+
     return c
