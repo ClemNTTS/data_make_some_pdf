@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 2-make-a-code-base-for-the-project]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Installer uv
+        run: pip install uv
+      - name: Installer les dépendances
+        run: |
+          uv lock
+          uv sync
+      - name: Run Ruff
+        run: |
+          source .venv/bin/activate
+          ruff check --output-format=github
+
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          pytest
