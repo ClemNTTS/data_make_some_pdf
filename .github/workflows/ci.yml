@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, 2-make-a-code-base-for-the-project]
   pull_request:
     branches: [main]
 
