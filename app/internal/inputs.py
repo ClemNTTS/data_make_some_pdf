@@ -1,5 +1,4 @@
 from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfform
 from app.internal.struct import Element
 
 
@@ -29,7 +28,7 @@ def handle_input_element(c: canvas.Canvas, element: Element) -> canvas.Canvas:
             height=element.height,
             value="",
             borderStyle="solid",
-            forceBorder=True
+            forceBorder=True,
         )
     elif element.input_type == "checkbox":
         form.checkbox(

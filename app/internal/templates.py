@@ -16,22 +16,30 @@ def create_pdf_template(json_data: JSONData):
     c = add_elements_to_canvas(c, json_data.content)
     c.save()
     buffer.seek(0)
-    return StreamingResponse(buffer, media_type='application/pdf', headers={
-        'Content-Disposition': f'attachment; filename="{json_data.file_name}.pdf"'
-    })
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{json_data.file_name}.pdf"'
+        },
+    )
 
 
 def add_elements_to_canvas(c: canvas.Canvas, elements: list[Element]) -> canvas.Canvas:
-    """Adds elements to the canvas.
-    """
+    """Adds elements to the canvas."""
     for element in elements:
         if element.element_type == "text":
             c.drawString(element.x, element.y, element.content)
         elif element.element_type == "image":
             image_data = base64.b64decode(element.content)
             image_data = ImageReader(io.BytesIO(image_data))
-            c.drawImage(image_data, element.x, element.y,
-                        width=element.width, height=element.height)
+            c.drawImage(
+                image_data,
+                element.x,
+                element.y,
+                width=element.width,
+                height=element.height,
+            )
         elif element.element_type == "input":
             try:
                 c = inputs.handle_input_element(c, element)

@@ -26,15 +26,15 @@ def test_create_template():
                 "x": 100,
                 "y": 750,
                 "width": 0,
-                "height": 0
+                "height": 0,
             },
             {
                 "element_type": "image",
-                "content": base64.b64encode(image_data).decode('utf-8'),
+                "content": base64.b64encode(image_data).decode("utf-8"),
                 "x": 100,
                 "y": 700,
                 "width": 200,
-                "height": 100
+                "height": 100,
             },
             {
                 "element_type": "input",
@@ -43,7 +43,7 @@ def test_create_template():
                 "y": 650,
                 "width": 200,
                 "height": 20,
-                "input_type": "text"
+                "input_type": "text",
             },
             {
                 "element_type": "input",
@@ -52,12 +52,15 @@ def test_create_template():
                 "y": 620,
                 "width": 20,
                 "height": 20,
-                "input_type": "checkbox"
-            }
-        ]
+                "input_type": "checkbox",
+            },
+        ],
     }
 
     response = client.post("/template", json=json_data)
     assert response.status_code == 200
-    assert response.headers["Content-Disposition"] == 'attachment; filename="test_template.pdf"'
+    assert (
+        response.headers["Content-Disposition"]
+        == 'attachment; filename="test_template.pdf"'
+    )
     assert response.headers["Content-Type"] == "application/pdf"
