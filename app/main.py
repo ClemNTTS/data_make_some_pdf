@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, File
 from app.internal.templates import JSONData, create_pdf_template
 from app.internal.pdf_filler import handle_merge
+from app.internal.data_template import create_data_template
 
 app = FastAPI()
 
@@ -22,6 +23,13 @@ async def merge_pdfs_excel(
     excel_file: UploadFile = File(...),
 ):
     return handle_merge(template, excel_file)
+
+
+@app.post("/data_template")
+def data_template_endpoint(
+    template: UploadFile = File(...),
+):
+    return create_data_template(template)
 
 
 if __name__ == "__main__":

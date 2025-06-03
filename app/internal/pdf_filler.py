@@ -1,6 +1,7 @@
 from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
 from PyPDF2 import PdfReader, PdfWriter
+from PyPDF2.generic import NameObject, BooleanObject
 from typing import Dict, Any
 from io import BytesIO
 import pandas as pd
@@ -38,6 +39,17 @@ def get_pdf_fields(template: UploadFile) -> tuple[Dict[str, Any], PdfReader]:
     return fields, reader_tempalte
 
 
+def correct_fields_values(data_dict: Dict[str, Any]) -> Dict[str, Any]:
+    for key in data_dict:
+        val = str(data_dict[key]).strip().lower()
+        if val in ["yes", "true", "1"]:
+            data_dict[key] = "/Yes"
+        elif val in ["off", "no", "false", "0", ""]:
+            data_dict[key] = "/Off"
+
+    return data_dict
+
+
 def buffer_process(
     data: pd.DataFrame, fields: Dict[str, Any], reader: PdfReader
 ) -> BytesIO:
@@ -54,8 +66,10 @@ def buffer_process(
         for index, row in data.iterrows():
             writer = PdfWriter()
             writer.append_pages_from_reader(reader)
+            writer._root_object.update(
+                {NameObject("/NeedAppearances"): BooleanObject(True)})
 
-            data_dict = row.to_dict()
+            data_dict = correct_fields_values(row.to_dict())
 
             # Fill the PDF
             for page in writer.pages:
