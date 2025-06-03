@@ -1,10 +1,21 @@
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from app.internal.templates import JSONData, create_pdf_template
 from app.internal.pdf_filler import handle_merge
 from app.internal.data_template import create_data_template
 
 app = FastAPI()
+
+# Ajout du middleware CORS pour autoriser les requêtes du front
+app.add_middleware(
+    CORSMiddleware,
+    # Pour la prod, restreindre à ["http://127.0.0.1:3000"]
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")

@@ -1,0 +1,27 @@
+body {
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1em;
+}
+
+.toolbar {
+  margin-bottom: 1em;
+}
+
+#a4-sheet {
+  position: relative;
+  width: 794px;
+  height: 1123px;
+  border: 1px solid #000;
+  background: #fff;
+}
+
+.draggable {
+  position: absolute;
+  border: 1px dashed #999;
+  padding: 4px;
+  cursor: move;
+  background: rgba(255, 255, 255, 0.8);
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fusionner PDF + Excel/CSV</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .drop-zone {
+        border: 2px dashed #888;
+        border-radius: 8px;
+        padding: 2em;
+        text-align: center;
+        margin: 2em auto;
+        width: 350px;
+        background: #fafafa;
+      }
+      .drop-zone input {
+        display: none;
+      }
+      .drop-zone label {
+        cursor: pointer;
+        color: #0074d9;
+      }
+      #merge-result {
+        margin-top: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Fusionner un PDF et un fichier Excel/CSV</h2>
+    <form id="merge-form">
+      <div class="drop-zone">
+        <label for="pdf-input">Déposer un PDF ici ou cliquer</label><br />
+        <input type="file" id="pdf-input" accept="application/pdf" />
+        <div id="pdf-filename"></div>
+      </div>
+      <div class="drop-zone">
+        <label for="excel-input"
+          >Déposer un fichier Excel/CSV ici ou cliquer</label
+        ><br />
+        <input type="file" id="excel-input" accept=".xlsx,.xls,.csv" />
+        <div id="excel-filename"></div>
+      </div>
+      <button type="submit">Fusionner et télécharger le ZIP</button>
+    </form>
+    <div id="merge-result"></div>
+    <script>
+      const pdfInput = document.getElementById("pdf-input");
+      const excelInput = document.getElementById("excel-input");
+      const pdfFilename = document.getElementById("pdf-filename");
+      const excelFilename = document.getElementById("excel-filename");
+      pdfInput.addEventListener("change", () => {
+        pdfFilename.textContent = pdfInput.files[0]
+          ? pdfInput.files[0].name
+          : "";
+      });
+      excelInput.addEventListener("change", () => {
+        excelFilename.textContent = excelInput.files[0]
+          ? excelInput.files[0].name
+          : "";
+      });
+      document
+        .getElementById("merge-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!pdfInput.files[0] || !excelInput.files[0]) {
+            alert("Veuillez sélectionner un PDF et un fichier Excel/CSV.");
+            return;
+          }
+          const formData = new FormData();
+          formData.append("template", pdfInput.files[0]);
+          formData.append("excel_file", excelInput.files[0]);
+          const resultDiv = document.getElementById("merge-result");
+          resultDiv.textContent = "Fusion en cours...";
+          try {
+            const response = await fetch("http://localhost:8000/merge", {
+              method: "POST",
+              body: formData,
+            });
+            if (!response.ok) throw new Error("Erreur lors de la fusion");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "resultats_fusion.zip";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            resultDiv.textContent = "Téléchargement terminé.";
+          } catch (err) {
+            resultDiv.textContent = "Erreur : " + err;
+          }
+        });
+    </script>
+  </body>
+</html>

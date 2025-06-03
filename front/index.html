@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Drag'n'Drop A4</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="toolbar">
+      <button data-type="text">Texte</button>
+      <button data-type="input">Champ texte</button>
+      <button data-type="checkbox">Case à cocher</button>
+      <button data-type="image">Image</button>
+      <button id="exportBtn">Exporter JSON</button>
+    </div>
+
+    <div id="a4-sheet"></div>
+
+    <pre id="json-output"></pre>
+
+    <a
+      href="merge.html"
+      target="_blank"
+      style="margin-top: 1em; display: inline-block"
+      >Fusionner PDF + Excel/CSV</a
+    >
+
+    <script src="script.js"></script>
+  </body>
+</html>
