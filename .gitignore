@@ -4,5 +4,6 @@ __pycache__/
 .env
 .vscode/
 .pytest_cache/
-.ruff_chache/
+.ruff_cache/
 *.pyc
+.idea/

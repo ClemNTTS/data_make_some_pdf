@@ -11,7 +11,7 @@ let elements = [];
 function addElement(type) {
   const el = document.createElement("div");
   el.classList.add("draggable");
-  el.setAttribute("draggable", true);
+  el.setAttribute("draggable", "true");
   el.style.position = "absolute";
 
   let content = "";
@@ -19,9 +19,9 @@ function addElement(type) {
 
   switch (type) {
     case "text":
-      content = "Texte";
+      content = "Text";
       el.innerText = content;
-      // Permettre l'édition sur double-clic
+      // Preterm condition sur double-clic
       el.addEventListener("dblclick", function () {
         const currentText = el.innerText;
         const input = document.createElement("input");
@@ -31,10 +31,10 @@ function addElement(type) {
         el.innerHTML = "";
         el.appendChild(input);
         input.focus();
-        // Sauvegarder le texte modifié
+        // Save modified text
         function saveEdit() {
           el.innerText = input.value;
-          // Mettre à jour le contenu dans elements
+          // Update content in elements
           const found = elements.find((e) => e.dom === el);
           if (found) {
             found.data.content = input.value;
@@ -50,7 +50,7 @@ function addElement(type) {
       break;
     case "input":
       content = "Champ";
-      el.innerHTML = `<input type="text" placeholder="Texte">`;
+      el.innerHTML = `<input type="text" placeholder="Text">`;
       inputType = "text";
       break;
     case "checkbox":
@@ -59,23 +59,19 @@ function addElement(type) {
       inputType = "checkbox";
       break;
     case "image":
-      content = ""; // Par défaut, pas de base64
-      // Créer un input pour l'import local
-      el.innerHTML = `<img src="assets/default-image.png" width="50"><br><input type="file" accept="image/*" style="display:none">`;
+      content = "";
+      el.innerHTML = `<img alt="Image" src="assets/default-image.png" width="1024"><br><input type="file" accept="image/*" style="display:none">`;
       const img = el.querySelector("img");
       const fileInput = el.querySelector("input[type='file']");
-      // Afficher le sélecteur de fichier au double-clic
       el.addEventListener("dblclick", () => fileInput.click());
-      // Stocker le base64 dans l'objet data
       let imageBase64 = null;
       fileInput.addEventListener("change", function (e) {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function (evt) {
-            img.src = evt.target.result;
-            imageBase64 = evt.target.result.split(",")[1]; // enlever le préfixe data:image/xxx;base64,
-            // Mettre à jour le contenu dans elements
+            img.src = evt.target.result.toString();
+            imageBase64 = evt.target.result.split(",")[1];
             const found = elements.find((e) => e.dom === el);
             if (found) {
               found.data.content = imageBase64;
@@ -87,7 +83,7 @@ function addElement(type) {
       break;
   }
 
-  // Ajout du handle de redimensionnement
+  // Resize handler
   const resizeHandle = document.createElement("div");
   resizeHandle.style.position = "absolute";
   resizeHandle.style.right = "0";
@@ -100,13 +96,13 @@ function addElement(type) {
   resizeHandle.style.zIndex = "10";
   el.appendChild(resizeHandle);
 
-  // Position initiale
+  // Position init
   el.style.left = "50px";
   el.style.top = "50px";
   el.style.width = "100px";
   el.style.height = "20px";
 
-  // Redimensionnement
+  // Resize
   resizeHandle.addEventListener("mousedown", function (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -125,13 +121,11 @@ function addElement(type) {
       const newHeight = Math.max(20, startHeight + ev.clientY - startY);
       el.style.width = newWidth + "px";
       el.style.height = newHeight + "px";
-      // Mettre à jour l'objet data
       const found = elements.find((e) => e.dom === el);
       if (found) {
         found.data.width = newWidth;
         found.data.height = newHeight;
       }
-      // Adapter le contenu interne
       if (type === "text") {
         el.style.lineHeight = newHeight + "px";
         el.style.wordBreak = "break-word";
@@ -204,7 +198,6 @@ function setupDrag(el, data) {
 
 exportBtn.addEventListener("click", () => {
   const content = elements.map((e) => {
-    // Pour les images, exporter le base64 directement (plus rapide)
     if (e.data.element_type === "image" && e.data.content) {
       return { ...e.data, content: e.data.content };
     }
@@ -218,6 +211,7 @@ exportBtn.addEventListener("click", () => {
   };
   jsonOutput.textContent = JSON.stringify(json, null, 2);
 
+  let response;
   try {
     response = fetch("http://localhost:8000/template", {
       method: "POST",
@@ -227,31 +221,31 @@ exportBtn.addEventListener("click", () => {
       body: JSON.stringify(json),
     });
     response
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return res.blob(); // <-- lire la réponse comme un blob (PDF)
-      })
-      .then((blob) => {
-        if (!blob || blob.size === 0) {
-          alert("Le PDF généré est vide ou la réponse est incorrecte.");
-          console.error("Blob vide ou invalide", blob);
-          return;
-        }
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "template.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((err) => {
-        alert("Erreur lors du téléchargement du PDF : " + err);
-        console.error("Erreur fetch ou téléchargement :", err);
-      });
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return res.blob(); // <-- Read answer like a blob
+        })
+        .then((blob) => {
+          if (!blob || blob.size === 0) {
+            alert("Pdf is empty or invalid response.");
+            console.error("Blob empty or invalid", blob);
+            return;
+          }
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "template.pdf";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((err) => {
+          alert("Error at PDF download : " + err);
+          console.error("Fetch or Download error :", err);
+        });
   } catch (error) {
     console.error("Error:", error);
   }
