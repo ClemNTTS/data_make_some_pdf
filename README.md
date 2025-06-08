@@ -107,7 +107,8 @@ data\_make\_some\_pdf/
 3. **Install dependencies**
 
    ```bash
-   pip install -r requirements.txt
+   pip install uv
+   uv sync
    ```
 
 ---

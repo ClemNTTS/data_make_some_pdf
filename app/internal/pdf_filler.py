@@ -13,12 +13,13 @@ def read_excel(excel_file: UploadFile) -> pd.DataFrame:
     Reads the Excel file and returns its content in data frame.
     """
 
-    if not excel_file.filename or not excel_file.filename.endswith(('.xlsx', '.xls', '.csv')):
-        raise ValueError(
-            "Unsupported file format. Please upload an Excel or CSV file.")
+    if not excel_file.filename or not excel_file.filename.endswith(
+        (".xlsx", ".xls", ".csv")
+    ):
+        raise ValueError("Unsupported file format. Please upload an Excel or CSV file.")
 
     try:
-        if excel_file.filename.endswith('.csv'):
+        if excel_file.filename.endswith(".csv"):
             df = pd.read_csv(excel_file.file)
         else:
             df = pd.read_excel(excel_file.file, engine="openpyxl")
@@ -67,7 +68,8 @@ def buffer_process(
             writer = PdfWriter()
             writer.append_pages_from_reader(reader)
             writer._root_object.update(
-                {NameObject("/NeedAppearances"): BooleanObject(True)})
+                {NameObject("/NeedAppearances"): BooleanObject(True)}
+            )
 
             data_dict = correct_fields_values(row.to_dict())
 
